@@ -1,0 +1,9 @@
+# Wordpress docker-compose setup
+
+- Contains a professional local dev setup for wordpress with docker-compose an nginx
+
+- developed because I experienced some issues with mount paths as root in bitnami docker image
+
+- Just run it via docker-compose up -d and setup wordpress on http://localhost:8000
+
+- phpmyadmin is located under http://localhost:9000

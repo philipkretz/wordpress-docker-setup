@@ -1,0 +1,65 @@
+version: '3.6'
+
+services:
+    db:
+        image: mysql:5.7
+        volumes:
+            - data_db:/var/lib/mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: mypassword
+            MYSQL_DATABASE: wordpress
+            MYSQL_USER: wordpress
+            MYSQL_PASSWORD: wordpress
+        networks:
+            - wpsite
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:latest
+        depends_on:
+          - db
+        restart: unless-stopped
+        ports:
+            - '9000:80'
+        environment:
+          PMA_HOST: db
+          MYSQL_ROOT_PASSWORD: mypassword
+        networks:
+            - wpsite
+
+    wordpress:
+        image: wordpress:6.2.0
+        container_name: wordpress
+        depends_on:
+            - db
+        ports:
+            - '8000:80'
+        restart: unless-stopped
+        environment:
+            WORDPRESS_DB_HOST: db:3306
+            WORDPRESS_DB_USER: wordpress
+            WORDPRESS_DB_PASSWORD: wordpress
+        volumes:
+            - ./config/php.conf.uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+            - ./wp-app:/var/www/html
+        networks:
+            - wpsite
+
+    nginx:
+        image: nginx:latest
+        depends_on:
+            - wordpress
+        container_name: nginx
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf
+            - ./certs:/etc/nginx/certs
+        ports:
+            - '80:80'
+            - '443:443'
+        networks:
+            - wpsite
+
+networks:
+    wpsite:
+volumes:
+    data_db:
